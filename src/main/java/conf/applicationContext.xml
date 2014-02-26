@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="GBK"?>
+
+<beans default-autowire="byName"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop">
+
+    <!--加密时候使用-->
+    <!--<bean id="propertyConfig" class="com.lrtech.framework.ext.spring.PropertyPlaceholderConfigurerExt">-->
+        <!--<property name="locations">-->
+            <!--<list>-->
+                <!--<value>classpath:jdbc.properties</value>-->
+            <!--</list>-->
+        <!--</property>-->
+    <!--</bean>-->
+    <!--不加密使用-->
+    <bean id="propertyConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:jdbc.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 配置系统的数据源 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName">
+            <value>${jdbc.driver}</value>
+        </property>
+        <property name="url">
+            <value>${jdbc.url}</value>
+        </property>
+        <property name="username">
+            <value>${jdbc.user}</value>
+        </property>
+        <property name="password">
+            <value>${jdbc.password}</value>
+        </property>
+    </bean>
+
+    <!-- 事务管理器配置,单数据源事务 -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <!-- 通知配置 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="delete*" rollback-for="Exception"/>
+            <tx:method name="save*" rollback-for="Exception"/>
+            <tx:method name="update*" rollback-for="Exception"/>
+            <tx:method name="*" read-only="true" rollback-for="Exception"/>
+        </tx:attributes>
+    </tx:advice>
+    <!-- 事务切面配置 -->
+    <aop:config>
+        <aop:pointcut id="serviceOperation"
+                      expression="execution(* *..service*..*(..))"/>
+        <aop:advisor pointcut-ref="serviceOperation"
+                     advice-ref="txAdvice"/>
+    </aop:config>
+
+    <!--根据dataSource和configLocation创建一个SqlMapClient-->
+    <bean id="sqlMapClient"
+          class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+        <property name="configLocation" value="classpath:com/lavasoft/config/sqlMapConfig.xml"/>
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <bean id="mysqlDialect" class="com.lrtech.framework.core.dialect.MySQLPhysicalSegmentDialect"/>
+    <bean id="sqlExecutor" class="com.lrtech.framework.core.PhysicalSegmentSqlExecutor">
+        <property name="dialect" ref="mysqlDialect"/>
+    </bean>
+
+    <bean id="baseDao" abstract="true" class="com.lrtech.framework.core.dao.BaseIBatisDAO" init-method="initialize">
+        <property name="dataSource">
+            <ref bean="dataSource"/>
+        </property>
+        <property name="sqlMapClient">
+            <ref bean="sqlMapClient"/>
+        </property>
+        <property name="sqlExecutor">
+            <ref bean="sqlExecutor"/>
+        </property>
+    </bean>
+
+</beans>

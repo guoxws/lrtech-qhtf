@@ -1,0 +1,40 @@
+
+mysql-5.5.21-win32的安装：
+
+E:\mysql-5.5.21-win32\bin>mysqld --install MySQL5 --defaults-file=F:\mysql-5.5.21-win32\my-small.ini
+Service successfully installed.
+
+E:\mysql-5.5.21-win32\bin>net start mysql5
+MySQL5 服务正在启动 .
+MySQL5 服务已经启动成功。
+
+-----------------------------------------------------
+
+系统环境：
+
+1、 Spring MVC 3.4.2
+2、 MyBaits
+3、 Ligerui
+4、 JQuery 1.x系列（兼容IE6）
+5、 Apache Shiro（权限控制）
+6、 ECache
+7、 FastJSON
+------------------
+环境约定：
+JDK 1.6
+Tomcat 7.x
+MySQL 5.6.x
+Servlet 2.4
+
+------------------
+
+武德森 224119933 15537777322
+孙震   707104772 15203821636
+杨柳   173313613 18530695231
+赵凡   274310724 18618307756（北京 同方）
+
+
+-----------------------------------------------------
+
+spring配置路径问题
+http://name327.iteye.com/blog/1628884
